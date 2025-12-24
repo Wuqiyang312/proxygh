@@ -1,0 +1,63 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-unknown-linux-musl
+
+      - name: Install Build Dependencies
+        run: |
+          choco install -y cmake nasm
+          # Install Microsoft C++ Build Tools via Visual Studio Installer
+          curl -sL https://aka.ms/vs/17/release/vs_BuildTools.exe --output vs_BuildTools.exe
+          Start-Process -Wait -FilePath ./vs_BuildTools.exe -ArgumentList "--quiet --wait --norestart --nocache --installPath `"$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools`" --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+        shell: pwsh
+
+      - name: Build for Linux (musl)
+        run: cargo build --target x86_64-unknown-linux-musl --release
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary
+          path: target/x86_64-unknown-linux-musl/release/proxygh
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake nasm build-essential
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Upload Linux Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-native-binary
+          path: target/release/proxygh

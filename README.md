@@ -22,7 +22,7 @@
 ### 前置条件
 
 -   安装 [Rust](https://www.rust-lang.org/tools/install)
--   安装 Microsoft C++ 生成工具
+-   安装 Microsoft C++ 生成工具 或者 GCC
 -   安装 CMake
 -   安装 NASM
 
