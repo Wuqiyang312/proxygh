@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  release:
+    types: [published]
 
 env:
   CARGO_TERM_COLOR: always
@@ -19,7 +21,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: x86_64-unknown-linux-musl
+          targets: x86_64-unknown-linux-musl,x86_64-pc-windows-msvc
 
       - name: Install Build Dependencies
         run: |
@@ -37,6 +39,15 @@ jobs:
         with:
           name: linux-binary
           path: target/x86_64-unknown-linux-musl/release/proxygh
+
+      - name: Build for Windows
+        run: cargo build --target x86_64-pc-windows-msvc --release
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binary
+          path: target/x86_64-pc-windows-msvc/release/proxygh.exe
 
   build-linux:
     runs-on: ubuntu-latest
@@ -61,3 +72,48 @@ jobs:
         with:
           name: linux-native-binary
           path: target/release/proxygh
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload linux-binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./linux-binary/proxygh
+          asset_name: proxygh-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload linux-native-binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./linux-native-binary/proxygh
+          asset_name: proxygh-linux-native-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload windows-binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./windows-binary/proxygh.exe
+          asset_name: proxygh-windows-amd64.exe
+          asset_content_type: application/octet-stream
+
