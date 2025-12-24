@@ -3,6 +3,12 @@ name = "proxygh"
 version = "0.1.0"
 edition = "2024"
 
+# 静态编译配置
+[profile.release]
+pie = true
+strip = true
+lto = true
+
 [dependencies]
 axum = "0.7.9"
 hyper = { version = "1.0", features = ["full"] }
