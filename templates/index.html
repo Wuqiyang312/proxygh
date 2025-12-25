@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GitHub 代理下载</title>
+  <style>
+    :root {
+      --bg-color: #221A1E;
+      --text-color: #FFF;
+      --input-bg: #333;
+      --border-color: #555;
+      --btn-bg: #432E39;
+      --btn-text: #EC88C2;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    input[type="url"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GitHub 代理下载工具</h1>
+    <label for="githubUrl">请输入 GitHub 文件原始链接：</label>
+    <input type="url" id="githubUrl" placeholder="https://github.com/user/repo/raw" />
+    <button onclick="downloadFile()">开始下载</button>
+  </div>
+
+  <script>
+    function downloadFile() {
+      const url = document.getElementById('githubUrl').value.trim();
+      if (!url) {
+        alert('请输入有效的 GitHub 文件链接');
+        return;
+      }
+      const proxyUrl = `https://gh.proxy.wuqingyuan.website/download?url=${encodeURIComponent(url)}`;
+      window.open(proxyUrl, '_blank');
+    }
+  </script>
+</body>
+</html>

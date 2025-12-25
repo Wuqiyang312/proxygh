@@ -16,6 +16,7 @@ use serde::Deserialize;
 use std::sync::Arc;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::{Level, debug, info};
+use std::env;
 
 use hyper_rustls::{HttpsConnector, HttpsConnectorBuilder};
 
@@ -35,6 +36,9 @@ struct DirectPath {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 加载 .env 文件
+    dotenv::dotenv().ok();
+    
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
         .init();
@@ -59,31 +63,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .on_response(DefaultOnResponse::new().level(Level::DEBUG)),
         );
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
-    info!("Listening on http://0.0.0.0:3000");
+    // 从环境变量读取端口，默认 3000
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "3000".to_string())
+        .parse::<u16>()
+        .unwrap_or(3000);
+    
+    let addr = format!("0.0.0.0:{}", port);
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    info!("Listening on http://{}", addr);
     axum::serve(listener, app).await?;
     Ok(())
 }
 
 async fn index() -> Html<&'static str> {
-    Html(
-        r#"
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>GitHub Proxy</title>
-</head>
-<body>
-<h2>GitHub Downloader</h2>
-<form method="get" action="/download">
-<input type="url" name="url" size="80" required>
-<button type="submit">Download</button>
-</form>
-</body>
-</html>
-"#,
-    )
+    Html(include!(concat!(env!("OUT_DIR"), "/html_constants.rs")))
 }
 
 //
