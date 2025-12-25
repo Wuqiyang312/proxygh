@@ -32,6 +32,9 @@ WORKDIR /app
 # 从构建器复制编译好的二进制文件
 COPY --from=builder /app/target/release/proxygh .
 
+# 设置权限
+RUN chmod +x proxygh
+
 # 暴露端口
 EXPOSE 3000
 
