@@ -15,6 +15,7 @@ RUN mkdir src && echo 'fn main() {}' > src/main.rs
 
 # 复制真实源码
 COPY src ./src
+COPY build.rs ./build.rs
 
 # 使用 musl 目标交叉编译，生成静态链接二进制
 RUN rustup target add x86_64-unknown-linux-musl && \
