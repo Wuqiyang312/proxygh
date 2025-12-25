@@ -28,13 +28,11 @@ jobs:
           choco install -y cmake nasm
           # Install Microsoft C++ Build Tools via Visual Studio Installer
           curl -sL https://aka.ms/vs/17/release/vs_BuildTools.exe --output vs_BuildTools.exe
-          Start-Process -Wait -FilePath ./vs_BuildTools.exe -ArgumentList "--quiet --wait --norestart --nocache --installPath \"$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools\" --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+          Start-Process -Wait -FilePath ./vs_BuildTools.exe -ArgumentList "--quiet --wait --norestart --nocache --installPath `"$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools`" --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
         shell: pwsh
 
       - name: Build for Windows
         run: cargo build --target x86_64-pc-windows-msvc --release --locked
-        env:
-          RUSTFLAGS: -C target-feature=+crt-static
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
@@ -59,8 +57,6 @@ jobs:
 
       - name: Build
         run: cargo build --release --locked
-        env:
-          RUSTFLAGS: -C target-feature=+crt-static
 
       - name: Upload Linux Native Artifact
         uses: actions/upload-artifact@v4
@@ -86,8 +82,6 @@ jobs:
 
       - name: Build
         run: cargo build --target x86_64-unknown-linux-musl --release --locked
-        env:
-          RUSTFLAGS: -C target-feature=+crt-static
 
       - name: Upload Linux Musl Artifact
         uses: actions/upload-artifact@v4
