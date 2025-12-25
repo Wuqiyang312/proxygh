@@ -1,30 +1,30 @@
 # 使用官方 Rust 镜像作为构建环境
-FROM rust:1.80 as builder
+FROM rust:1.92.0-bullseye as builder
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制项目文件
+# 复制 Cargo 文件
 COPY Cargo.toml Cargo.lock ./
+
+# 安装依赖
+RUN apt-get update && apt-get install -y cmake nasm build-essential pkg-config
+
+# 创建一个虚拟的src目录以允许cargo检查依赖
+RUN mkdir src
+RUN echo "fn main() { println!(\"Hello, world!\"); }" > src/main.rs
+
+# 复制实际源代码
 COPY src ./src
 
-# 预编译依赖
-RUN cargo build --release
-RUN rm src/main.rs  # 删除默认的main.rs，因为我们要重新编译
-
-# 复制源代码
-COPY src ./src
-
-# 构建发布版本
-RUN cargo build --release
+# 构建应用
+RUN cargo build --release --locked
 
 # 使用轻量级基础镜像作为运行环境
-FROM debian:bookworm-slim
+FROM alpine:3.23
 
 # 安装运行时依赖
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ca-certificates
 
 # 设置工作目录
 WORKDIR /app
