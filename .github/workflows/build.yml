@@ -58,11 +58,14 @@ jobs:
       - name: Build
         run: cargo build --release --locked
 
+      - name: Rename and Upload Linux Native Artifact
+        run: cp target/release/proxygh target/release/proxygh-linux
+        shell: bash
       - name: Upload Linux Native Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-native-binary
-          path: target/release/proxygh
+          path: target/release/proxygh-linux
 
   build-linux-musl:
     runs-on: ubuntu-latest
@@ -83,11 +86,14 @@ jobs:
       - name: Build
         run: cargo build --target x86_64-unknown-linux-musl --release --locked
 
+      - name: Rename and Upload Linux Musl Artifact
+        run: cp target/x86_64-unknown-linux-musl/release/proxygh target/x86_64-unknown-linux-musl/release/proxygh-linux-musl
+        shell: bash
       - name: Upload Linux Musl Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-musl-binary
-          path: target/x86_64-unknown-linux-musl/release/proxygh
+          path: target/x86_64-unknown-linux-musl/release/proxygh-linux-musl
 
   build-docker:
     runs-on: ubuntu-latest
@@ -143,8 +149,8 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           files: |
-            ./artifacts/linux-native-binary/proxygh
-            ./artifacts/linux-musl-binary/proxygh
+            ./artifacts/linux-native-binary/proxygh-linux
+            ./artifacts/linux-musl-binary/proxygh-linux-musl
             ./artifacts/windows-binary/proxygh.exe
             ./artifacts/docker-image-archive/proxygh-docker-image.tar.gz
           name: ${{ github.ref_name }}
