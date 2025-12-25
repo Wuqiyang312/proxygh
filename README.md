@@ -24,6 +24,28 @@
 -   安装 CMake
 -   安装 NASM
 
+### 使用 Docker (推荐)
+
+项目包含 Dockerfile，可以直接使用 Docker 部署：
+
+-   构建镜像: `docker build -t proxygh .`
+-   运行容器: `docker run -p 3000:3000 proxygh`
+
+或者使用 Docker Compose (如果项目中有 docker-compose.yml)：
+
+```bash
+docker-compose up -d
+```
+
+### 本地安装
+
+如果选择本地安装，请确保满足以下前置条件：
+
+-   安装 [Rust](https://www.rust-lang.org/tools/install)
+-   安装 Microsoft C++ 生成工具 或者 GCC
+-   安装 CMake
+-   安装 NASM
+
 ### 1. 克隆项目
 
 ```bash
