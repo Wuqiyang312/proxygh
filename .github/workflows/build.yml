@@ -3,10 +3,10 @@ name: build
 on:
   push:
     branches: [ main ]
+    tags:
+      - "v*.*.*"
   pull_request:
     branches: [ main ]
-  release:
-    types: [published]
 
 env:
   CARGO_TERM_COLOR: always
@@ -131,7 +131,7 @@ jobs:
   release:
     needs: [build-windows, build-linux, build-linux-musl, build-docker]
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: github.ref_type == 'tag'
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -140,16 +140,15 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: github.event_name == 'release'
+        if: github.ref_type == 'tag'
         with:
           files: |
             ./artifacts/linux-native-binary/proxygh
             ./artifacts/linux-musl-binary/proxygh
             ./artifacts/windows-binary/proxygh.exe
             ./artifacts/docker-image-archive/proxygh-docker-image.tar.gz
-          name: ${{ github.event.release.name }}
-          tag_name: ${{ github.event.release.tag_name }}
-          body: ${{ github.event.release.body }}
-          draft: ${{ github.event.release.draft }}
-          prerelease: ${{ github.event.release.prerelease }}
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
 
